@@ -48,9 +48,9 @@ class RankedVotingShell(cmd.Cmd):
                 for line in self.vote_data:
                     if "Your Name" not in line:
                         data = line.split(',')
-                        time = datetime.strptime(data[0], '%d/%m/%Y %H:%M:%S')
+                        time = datetime.strptime(data[0], '%m/%d/%Y %H:%M:%S')
                         name = data[1]
-                        choices = data[2:]
+                        choices = data[3:]
                         # Make sure than only the most recent vote is counted
                         if name in self.votes and self.votes[name]["time"] > time:
                             pass
@@ -60,7 +60,7 @@ class RankedVotingShell(cmd.Cmd):
                                 "votes": choices,
                                 "name": name
                             }
-    	        print("Loaded " + str(len(self.votes)) + " lines from " + file)
+    	        print("Loaded " + str(len(self.votes)) + " unique votes out of " + str(len(self.vote_data)) + " lines from " + file)
     	    finally:
     	        f.close()
     	except IOError as e:
@@ -120,7 +120,11 @@ class RankedVotingShell(cmd.Cmd):
         loser = []
         for candidate, count in candidates.iteritems():
             # Print the results
-            print(candidate + ":" + " " * (max_name + 2 - len(candidate)) + str(count) + " " + ("█" * int(15.0 * count / max_count)))
+            print(
+                candidate + ":" + " " * (max_name + 2 - len(candidate))
+                + str(count) + " " * (len(str(max_count)) + 1 - len(str(count)))
+                + ("█" * int(15.0 * count / max_count))
+                )
             # Check if this candidate is a winner
             if not winner or winner[0][1] == count:
                 winner.append((candidate, count))
